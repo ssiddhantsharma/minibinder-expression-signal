@@ -7,13 +7,16 @@ including the ones that failed outright. Scored with
 [ESMC-MonoYield](https://github.com/tsubo-lab/monoyield-predictor) using the authors' own
 weights.
 
-It explains **0.8%** of the rank variance. Net charge explains **1.2%**. Nothing clears ~1%,
-so the limit is the label, not the model.
+It explains **0.8%** of the rank variance, with the sign pointing the wrong way
+(ρ = −0.09: higher predicted yield, slightly *lower* measured expression). Counting charged
+residues gets **1.2%**, but those two intervals overlap — MonoYield is not distinguishable
+from any hand-coded feature here, in either direction. Nothing reaches 2%. The limit is the
+label, not the model.
 
 ## The data
 
 The expression readout was already public but not presented as one. Supplementary Data 5 of
-[Chazin-Gray et al., *Nat Commun* 2026](https://doi.org/10.1038/s41467-026-78123-6) is an NGS
+[Chazin-Gray et al., *Nat Commun* (2026)](https://doi.org/10.1038/s41467-026-78123-6) is an NGS
 pool table whose `sort` column includes an `expression` sort alongside `naive`, so every design
 in the library has an expression measurement.
 
@@ -22,7 +25,9 @@ spanning −7.2 to +4.8. `expression_flag` is `ok` (5,021), `zero_expression` (5
 reads and zero expression reads) or `no_naive_reads` (41). Fixed length means length cannot
 confound a sequence model.
 
-`data/fimh_monoyield_predictions.csv` — ESMC-MonoYield output, mean of the five folds.
+`data/fimh_monoyield_predictions.csv` — ESMC-MonoYield output, mean of the five folds. It
+is joined to the table above by row position, which the plotting script asserts against the
+scored sequence rather than trusting.
 
 ## Caveats
 

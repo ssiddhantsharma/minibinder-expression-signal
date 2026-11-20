@@ -1,7 +1,8 @@
 """Per-design display-expression readouts for 5,114 de novo minibinders.
 
-Source: FimH/Abp miniprotein inhibitor paper, Nat Commun 2026,
-doi 10.1038/s41467-026-78123-6, Supplementary Data MOESM5 (the NGS pool table).
+Source: Chazin-Gray et al., "De novo design of miniprotein inhibitors of bacterial
+adhesins", Nat Commun (2026-10-09), doi 10.1038/s41467-026-78123-6, Supplementary
+Data MOESM5 (the NGS pool table).
 Its `sort` column carries an `expression` sort alongside `naive`, so every design
 has an expression readout -- including the ones that failed outright.
 
@@ -45,7 +46,7 @@ def main() -> None:
 
     d["assay"] = "display_expression_sort_NGS"
     d["is_de_novo"] = True
-    d["source"] = "BacterialAdhesins2025"
+    d["source"] = "ChazinGray2026"
     d["source_url"] = "https://doi.org/10.1038/s41467-026-78123-6"
 
     assert len(d) == n_in, f"row count changed: {n_in} -> {len(d)}"

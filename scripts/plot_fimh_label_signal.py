@@ -12,6 +12,8 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 
+B, rng = 2000, np.random.default_rng(0)
+
 plt.rcParams.update({
     "font.family": "serif",
     "font.serif": ["Times New Roman", "Times", "STIX Two Text", "DejaVu Serif"],
@@ -26,7 +28,10 @@ KD = dict(zip("AVLIPFMWGSTCYNQDEKRH",
 p = pd.read_csv("data/fimh_monoyield_predictions.csv")
 t = pd.read_csv("data/fimh_display_expression.csv")
 t["name"] = "fimh_" + t.index.astype(str)
-d = p.merge(t[["name", "log2_expressed", "expression_flag"]], on="name", validate="one_to_one")
+d = p.merge(t[["name", "sequence", "log2_expressed", "expression_flag"]], on="name",
+            validate="one_to_one")
+# the join key is positional, so check it against what was actually scored
+assert (d.raw_aa_seq == d.sequence).all(), "prediction/expression rows are misaligned"
 ok = d[d.expression_flag == "ok"].copy()
 s = ok.raw_aa_seq
 
@@ -37,20 +42,31 @@ feats = {
     "ESMC-MonoYield  (6B parameters)": ok.monoyield_log10_mgL,
     "ILV fraction": s.map(lambda x: sum(c in "ILV" for c in x) / len(x)),
 }
-rows = sorted(((k, spearmanr(v, ok.log2_expressed).statistic) for k, v in feats.items()),
-              key=lambda kv: -abs(kv[1]))
+y = ok.log2_expressed.values
+idx = rng.integers(0, len(y), (B, len(y)))
+
+
+def rho2_ci(v):
+    v = np.asarray(v)
+    bs = np.array([spearmanr(v[i], y[i]).statistic for i in idx])
+    return 100 * spearmanr(v, y).statistic ** 2, *np.percentile(100 * bs ** 2, [2.5, 97.5])
+
+
+rows = sorted(((k, *rho2_ci(v)) for k, v in feats.items()), key=lambda r: -r[1])
 
 fig, ax = plt.subplots(figsize=(10.5, 6.2))
-names = [k for k, _ in rows]
-r2 = [100 * r ** 2 for _, r in rows]
+names = [r[0] for r in rows]
+r2 = [r[1] for r in rows]
+err = np.array([[r[1] - r[2] for r in rows], [r[3] - r[1] for r in rows]])
 cols = [BLUE if "MonoYield" in n else SLATE for n in names]
-y = np.arange(len(names))
-ax.barh(y, r2, 0.64, color=cols)
-for i, (v, (_, r)) in enumerate(zip(r2, rows)):
-    ax.text(v + 0.04, i, f"{v:.1f}%", va="center", fontsize=14,
+pos = np.arange(len(names))
+ax.barh(pos, r2, 0.64, color=cols)
+ax.errorbar(r2, pos, xerr=err, fmt="none", ecolor=DARK, elinewidth=1.3, capsize=4)
+for i, r in enumerate(rows):
+    ax.text(r[3] + 0.06, i, f"{r[1]:.1f}%", va="center", fontsize=14,
             color=BLUE if "MonoYield" in names[i] else DARK,
             fontweight="bold" if "MonoYield" in names[i] else "normal")
-ax.set_yticks(y)
+ax.set_yticks(pos)
 ax.set_yticklabels(names, fontsize=13.5)
 for lab, n in zip(ax.get_yticklabels(), names):
     if "MonoYield" in n:
@@ -58,18 +74,19 @@ for lab, n in zip(ax.get_yticklabels(), names):
 ax.invert_yaxis()
 ax.set_xlim(0, 2.0)
 ax.set_xlabel("rank variance in measured expression explained  "
-              "(Spearman $\\rho^2$)", labelpad=10)
+              "(Spearman $\\rho^2$, 95% bootstrap CI)", labelpad=10)
 
 ax.set_title("A 6-billion-parameter yield model explains no more of display-sort\n"
              "expression than counting a protein's charged residues",
              fontsize=16, pad=16, color=DARK)
-fig.text(0.5, 0.035,
+fig.text(0.5, 0.075,
          "5,114 de novo minibinders, all 85 aa — Chazin-Gray et al., Nat Commun 2026 · "
          "scored with ESMC-MonoYield (Setsu et al.)",
          ha="center", fontsize=11.5, color=DARK)
 fig.text(0.5, 0.005,
+         "MonoYield's interval overlaps every hand-coded feature's \u2014 it is not distinguishable from any of them.\n"
          "Display-sort enrichment, not the soluble mg/L MonoYield predicts: the proxy is what fails here, not the model.",
-         ha="center", fontsize=11.5, color=DARK)
-fig.tight_layout(rect=[0, 0.075, 1, 1])
+         ha="center", va="bottom", fontsize=11, color=DARK, linespacing=1.5)
+fig.tight_layout(rect=[0, 0.115, 1, 1])
 fig.savefig("figures/fimh_label_signal.png", dpi=220)
 print("wrote figures/fimh_label_signal.png")
