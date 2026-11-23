@@ -76,8 +76,8 @@ ax.set_xlim(0, 2.0)
 ax.set_xlabel("rank variance in measured expression explained  "
               "(Spearman $\\rho^2$, 95% bootstrap CI)", labelpad=10)
 
-ax.set_title("A 6-billion-parameter yield model explains no more of display-sort\n"
-             "expression than counting a protein's charged residues",
+ax.set_title("Nothing predicts display-sort enrichment \u2014 not a 6-billion-parameter\n"
+             "yield model, not any simple sequence feature",
              fontsize=16, pad=16, color=DARK)
 fig.text(0.5, 0.075,
          "5,114 de novo minibinders, all 85 aa — Chazin-Gray et al., Nat Commun 2026 · "
@@ -85,7 +85,7 @@ fig.text(0.5, 0.075,
          ha="center", fontsize=11.5, color=DARK)
 fig.text(0.5, 0.005,
          "MonoYield's interval overlaps every hand-coded feature's \u2014 it is not distinguishable from any of them.\n"
-         "Display-sort enrichment, not the soluble mg/L MonoYield predicts: the proxy is what fails here, not the model.",
+         "Enrichment from cDNA/yeast display, not the E. coli mg/L MonoYield predicts: the label is what fails, not the model.",
          ha="center", va="bottom", fontsize=11, color=DARK, linespacing=1.5)
 fig.tight_layout(rect=[0, 0.115, 1, 1])
 fig.savefig("figures/fimh_label_signal.png", dpi=220)

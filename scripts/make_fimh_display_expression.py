@@ -6,9 +6,10 @@ Data MOESM5 (the NGS pool table).
 Its `sort` column carries an `expression` sort alongside `naive`, so every design
 has an expression readout -- including the ones that failed outright.
 
-NOT E. coli soluble yield: this is display expression, a proxy. The paper screened
-FimH by cDNA display and Abp by yeast display, and the table does not say which
-platform the `Adhesin` pools used.
+NOT the quantity ESMC-MonoYield predicts, and not the same expression system:
+that model is trained on monomeric yield in E. coli in mg/L. This is NGS enrichment
+from cDNA display (FimH, in vitro translation) and yeast display (Abp), and the
+table does not say which platform the `Adhesin` pools used.
 
     python scripts/make_fimh_display_expression.py
 """

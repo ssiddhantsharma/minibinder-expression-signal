@@ -7,11 +7,13 @@ including the ones that failed outright. Scored with
 [ESMC-MonoYield](https://github.com/tsubo-lab/monoyield-predictor) using the authors' own
 weights.
 
-It explains **0.8%** of the rank variance, with the sign pointing the wrong way
-(ρ = −0.09: higher predicted yield, slightly *lower* measured expression). Counting charged
-residues gets **1.2%**, but those two intervals overlap — MonoYield is not distinguishable
-from any hand-coded feature here, in either direction. Nothing reaches 2%. The limit is the
-label, not the model.
+It explains **0.8%** of the rank variance. Counting charged residues gets **1.2%**, and those
+two intervals overlap — nothing here is distinguishable from anything else, and nothing
+reaches 2%. The limit is the label, not the model.
+
+(The correlation is slightly negative, ρ = −0.09. At n = 5,021 that is significant,
+p ≈ 1e-10, and still 0.8% of the variance. Across a different expression system it is not
+evidence of anything directional, so it is a curiosity rather than a result.)
 
 ## The data
 
@@ -31,13 +33,17 @@ scored sequence rather than trusting.
 
 ## Caveats
 
-This is **display-sort enrichment, not the soluble mg/L** MonoYield predicts — a proxy, usable
-rank-only within this library. MonoYield's own binder validation is a different and cleaner
-measurement: 11 high-scoring plus 10 randomly sampled BindCraft designs by HPLC-SEC
-([Setsu et al.](https://doi.org/10.64898/2026.11.02.763507)). Nothing here contradicts it.
+**This is not the quantity MonoYield predicts, and not even the same expression system.**
+ESMC-MonoYield is trained on monomeric yield in *E. coli*, measured in mg/L by a pooled
+peptide-barcode + SEC + mass-spec assay under uniform conditions
+([Setsu et al. 2026](https://doi.org/10.64898/2026.11.02.763507)). The readout here is NGS
+enrichment from **cDNA display** (FimH, in vitro translation) and **yeast display** (Abp) —
+a different organism, a different construct and a different quantity, usable rank-only
+within this library. The table does not say which platform the 3,857 `Adhesin` rows used.
 
-The paper screened FimH by cDNA display and Abp by yeast display; the table does not say which
-platform the 3,857 `Adhesin` rows used.
+So this is a test of the label, not a test of the model. The authors' own prospective test is
+the fair one, and it worked: **6 of 11** model-selected BindCraft designs exceeded 10 mg/L
+monomeric yield, against **2 of 10** randomly selected. Nothing here contradicts that.
 
 ## Reproducing
 
